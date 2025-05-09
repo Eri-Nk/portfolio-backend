@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const clientContact = new Schema(
   {
-    name: {
+    personName: {
       type: String,
       required: true,
     },
@@ -19,5 +19,5 @@ const clientContact = new Schema(
   { timestamps: true }
 );
 
-const Client = mongoose.model("Client", clientContact);
-module.exports = Client;
+const Contact = mongoose.model("Contact", clientContact);
+module.exports = Contact;
