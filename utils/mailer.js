@@ -14,7 +14,7 @@ const mail = async function mail({ personName: contactName, email, message }) {
       from: `"Eriko Contact Form: " <${contactName}>`,
       to: process.env.EMAIL_USER,
       subject: "New Message from Contact Form",
-      text: `${contactName} (${email}) says: ${message}`,
+      text: `${contactName} (${email}) says: \n ${message}`,
     };
     const info = await transporter.sendMail(mailOptions);
     logger.info(`Message sent: ${info.messageId}`);
