@@ -14,49 +14,43 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cors());
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then((result) => {
-    app.listen(PORT, () => {
-      logger.info(`Running sucessfully on port ${PORT}`);
-    });
-  })
-  .catch((err) => logger.error("Error is", err));
-
 app.get("/", (req, res) => {
-  res.redirect("/contact");
+  res.status(200).send("Backend alive 🌱");
 });
 
-app.get("/contact", (req, res) => {
-  Contact.find()
-    .then((result) => {
-      res.status(200).json(result);
-    })
-    .catch((err) => {
-      res.status(500).json(err);
-      logger.error(err);
-    });
+app.get("/contact", async (req, res) => {
+  try {
+    const contacts = await Contact.find();
+    res.status(200).json(contacts);
+  } catch (err) {
+    logger.error("fetch contacts error:", err);
+    res.status(500).json({ error: "Failed to fetch contacts" });
+  }
 });
 
 app.post("/contact", async (req, res) => {
   try {
     const contact = new Contact(req.body);
+    const saved = await contact.save();
 
-    const result = await contact.save();
-    try {
-      await mail({
-        personName: result.personName,
-        email: result.email,
-        message: result.message,
-      });
-    } catch (mailError) {
-      logger.error(`Failed to send mail: ${mailError.message}`);
-      res.status(202).json({ result, warning: "Mail not sent" });
-    }
+    mail({
+      personName: saved.personName,
+      email: saved.email,
+      message: saved.message,
+    }).catch((err) => logger.error("Mail sending failed:", err.message));
 
-    res.status(200).json(result);
+    res.status(201).json(saved);
   } catch (err) {
-    logger.error(err);
+    logger.error("Save contact error:", err);
     res.status(500).json({ error: "Failed to save contact" });
   }
 });
+
+app.listen(PORT, () => {
+  logger.info(`Server listening on port ${PORT}`);
+});
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => logger.info("MongoDB connected"))
+  .catch((err) => logger.error("MongoDB connection error:", err));
