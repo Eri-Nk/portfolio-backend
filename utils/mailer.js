@@ -11,10 +11,11 @@ const transporter = nodemailer.createTransport({
 const mail = async function mail({ personName: contactName, email, message }) {
   try {
     const mailOptions = {
-      from: `"Eriko Contact Form: " <${contactName}>`,
+      from: `"Eriko Contact Form: " <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER,
+      replyTo: `"${contactName}" <${email}>`,
       subject: "New Message from Contact Form",
-      text: `${contactName} (${email}) says: \n ${message}`,
+      text: `Name: ${contactName} \nEmail: (${email}) \nMessage: ${message}`,
     };
     const info = await transporter.sendMail(mailOptions);
     logger.info(`Message sent: ${info.messageId}`);

@@ -18,14 +18,7 @@ const myFormat = printf(({ level, message, timestamp }) => {
 const logger = createLogger({
   level: "info",
   format: combine(timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), myFormat),
-  transports: [
-    ...(process.env.NODE_ENV !== "production"
-      ? [new transports.Console()]
-      : [
-          new transports.File({ filename: "logs/error.log", level: "error" }),
-          new transports.File({ filename: "logs/combined.log" }),
-        ]),
-  ],
+  transports: [new transports.Console()],
 });
 
 module.exports = logger;
