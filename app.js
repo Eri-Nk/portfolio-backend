@@ -46,11 +46,35 @@ app.post("/contact", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  logger.info(`Server listening on port ${PORT}`);
-});
+/* ---------------- START SERVER ---------------- */
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => logger.info("MongoDB connected"))
-  .catch((err) => logger.error("MongoDB connection error:", err));
+async function startServer() {
+  try {
+    // optional but useful: fail fast instead of buffering
+    mongoose.set("bufferCommands", false);
+
+    await mongoose.connect(process.env.MONGO_URI);
+
+    logger.info("MongoDB connected");
+
+    app.listen(PORT, () => {
+      logger.info(`Server listening on port ${PORT}`);
+    });
+  } catch (err) {
+    logger.error("MongoDB connection error:", err);
+
+    // optional: retry logic (very useful for Render + Atlas)
+    setTimeout(startServer, 5000);
+  }
+}
+
+startServer();
+
+// app.listen(PORT, () => {
+//   logger.info(`Server listening on port ${PORT}`);
+// });
+
+// mongoose
+//   .connect(process.env.MONGO_URI)
+//   .then(() => logger.info("MongoDB connected"))
+//   .catch((err) => logger.error("MongoDB connection error:", err));

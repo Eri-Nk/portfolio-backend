@@ -12,6 +12,8 @@ const transporter = nodemailer.createTransport({
     refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
   },
 });
+//mailing not working
+//not working cause of smtp issues on free tier render
 
 const mail = async function mail({ personName: contactName, email, message }) {
   try {
